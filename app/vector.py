@@ -14,10 +14,10 @@ def get_feature_vector(directory: str) -> Optional[np.ndarray]:
     Calculate the average feature vector from all PNG images in the specified directory using DeepFace.
 
     Args:
-        directory (str): Path to the directory containing PNG images.
+    - directory (str): Path to the directory containing PNG images.
 
     Returns:
-        Optional[np.ndarray]: Average feature vector if successful, None otherwise.
+    - Optional[np.ndarray]: Average feature vector if successful, None otherwise.
     """
     feature_vectors = []
     for filename in os.listdir(directory):
@@ -53,10 +53,10 @@ def analyze_features(directory: str) -> Optional[Dict[str, Any]]:
     Analyzes the feature vector of the first PNG image in a directory using DeepFace to get attributes like age, gender, and race.
 
     Args:
-        directory (str): Path to the directory containing PNG images.
+    - directory (str): Path to the directory containing PNG images.
 
     Returns:
-        Optional[Dict[str, Any]]: Dictionary containing analysis results if successful, None otherwise.
+    - Optional[Dict[str, Any]]: Dictionary containing analysis results if successful, None otherwise.
     """
     for filename in os.listdir(directory):
         if filename.endswith(".png"):

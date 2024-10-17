@@ -16,12 +16,12 @@ def save_face_image(frame: np.ndarray, x: int, y: int, w: int, h: int,
     Save a face image from the given frame.
 
     Args:
-        frame (np.ndarray): The input frame.
-        x, y, w, h (int): Bounding box coordinates and dimensions.
-        track_info (Dict[str, Any]): Information about the current track.
-        track_id (int): ID of the current track.
-        img_width (int): Width of the input frame.
-        img_height (int): Height of the input frame.
+    - frame (np.ndarray): The input frame.
+    - x, y, w, h (int): Bounding box coordinates and dimensions.
+    - track_info (Dict[str, Any]): Information about the current track.
+    - track_id (int): ID of the current track.
+    - img_width (int): Width of the input frame.
+    - img_height (int): Height of the input frame.
     """
     face_img_path = f"{track_info['dir_path']}/face_{track_id}_{track_info['images_saved']}.png"
     margin = 100
@@ -40,10 +40,10 @@ def extract_ltrb_from_track(track: Any) -> Tuple[int, int, int, int]:
     Extract left, top, right, bottom coordinates from a track.
 
     Args:
-        track (Any): The track object.
+    - track (Any): The track object.
 
     Returns:
-        Tuple[int, int, int, int]: x, y, w, h coordinates.
+    - Tuple[int, int, int, int]: x, y, w, h coordinates.
     """
     ltrb = track.to_ltrb(orig=True)
     x = int(ltrb[0])

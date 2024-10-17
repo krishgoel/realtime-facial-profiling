@@ -34,12 +34,12 @@ def insert_vector(vector: List[float], name: str, analysis: Dict[str, Any]) -> O
     Insert the vector into the Pinecone index and the name into the MongoDB collection.
     
     Args:
-        vector (List[float]): The feature vector to insert.
-        name (str): The name of the person.
-        analysis (Dict[str, Any]): The analysis of the person from Deepface.
+    - vector (List[float]): The feature vector to insert.
+    - name (str): The name of the person.
+    - analysis (Dict[str, Any]): The analysis of the person from Deepface.
         
     Returns:
-        Optional[str]: The MongoDB ID of the inserted record or None if insertion failed.
+    - Optional[str]: The MongoDB ID of the inserted record or None if insertion failed.
     """
     if not isinstance(vector, list) or len(vector) != Config.FEATURE_VECTOR_DIMENSION:
         logger.error(f"Invalid vector format. Type: {type(vector)}, Length: {len(vector)}")
@@ -65,10 +65,10 @@ def search_vector(vector: List[float]) -> Optional[str]:
     Search for a matching vector in the Pinecone index and return the MongoDB ID if found.
     
     Args:
-        vector (List[float]): The feature vector to search.
+    - vector (List[float]): The feature vector to search.
         
     Returns:
-        Optional[str]: The MongoDB ID of the matching record or None if no match found.
+    - Optional[str]: The MongoDB ID of the matching record or None if no match found.
     """
     if not isinstance(vector, list) or len(vector) != Config.FEATURE_VECTOR_DIMENSION:
         logger.error("Invalid vector format.")

@@ -3,40 +3,40 @@ import asyncio
 import numpy as np
 import mediapipe as mp
 from deep_sort_realtime.deepsort_tracker import DeepSort
-from scservo_sdk import PortHandler, sms_sts, COMM_SUCCESS
-from typing import Tuple
+# from scservo_sdk import PortHandler, sms_sts, COMM_SUCCESS  # Commented out
+from typing import Tuple, Any
 from .config import FacialRecognitionConfiguration as Config
 
-def open_port() -> bool:
-    """
-    Open the serial port for servo communication.
+# def open_port() -> bool:
+#     """
+#     Open the serial port for servo communication.
+#
+#     Returns:
+#     - bool: True if port opened successfully, False otherwise.
+#     """
+#     portHandler = PortHandler(Config.SERIAL_PORT)
+#     if not portHandler.openPort():
+#         print("Failed to open the port")
+#         return False
+#     if not portHandler.setBaudRate(Config.BAUDRATE):
+#         print("Failed to change the baud rate")
+#         return False
+#     return True
 
-    Returns:
-        bool: True if port opened successfully, False otherwise.
-    """
-    portHandler = PortHandler(Config.SERIAL_PORT)
-    if not portHandler.openPort():
-        print("Failed to open the port")
-        return False
-    if not portHandler.setBaudRate(Config.BAUDRATE):
-        print("Failed to change the baud rate")
-        return False
-    return True
-
-def move_servo(pan_pos: int, tilt_pos: int) -> None:
-    """
-    Move the servo to the specified pan and tilt positions.
-
-    Args:
-        pan_pos (int): Pan position.
-        tilt_pos (int): Tilt position.
-    """
-    print(f"Moving servos to Pan: {pan_pos}, Tilt: {tilt_pos}")
-    packetHandler = sms_sts(PortHandler(Config.SERIAL_PORT))
-    packetHandler.SyncWritePosEx(1, tilt_pos, Config.SCS_MOVING_SPEED, Config.SCS_MOVING_ACC)
-    packetHandler.SyncWritePosEx(2, pan_pos, Config.SCS_MOVING_SPEED, Config.SCS_MOVING_ACC)
-    packetHandler.groupSyncWrite.txPacket()
-    packetHandler.groupSyncWrite.clearParam()
+# def move_servo(pan_pos: int, tilt_pos: int) -> None:
+#     """
+#     Move the servo to the specified pan and tilt positions.
+#
+#     Args:
+#     - pan_pos (int): Pan position.
+#     - tilt_pos (int): Tilt position.
+#     """
+#     print(f"Moving servos to Pan: {pan_pos}, Tilt: {tilt_pos}")
+#     packetHandler = sms_sts(PortHandler(Config.SERIAL_PORT))
+#     packetHandler.SyncWritePosEx(1, tilt_pos, Config.SCS_MOVING_SPEED, Config.SCS_MOVING_ACC)
+#     packetHandler.SyncWritePosEx(2, pan_pos, Config.SCS_MOVING_SPEED, Config.SCS_MOVING_ACC)
+#     packetHandler.groupSyncWrite.txPacket()
+#     packetHandler.groupSyncWrite.clearParam()
 
 async def process_frame(frame: np.ndarray, face_detection: mp.solutions.face_detection.FaceDetection, 
                         tracker: DeepSort, current_pan: int, current_tilt: int) -> Tuple[np.ndarray, int, int]:
@@ -44,14 +44,14 @@ async def process_frame(frame: np.ndarray, face_detection: mp.solutions.face_det
     Process a single frame for face detection and tracking.
 
     Args:
-        frame (np.ndarray): Input frame.
-        face_detection (mp.solutions.face_detection.FaceDetection): Face detection model.
-        tracker (DeepSort): DeepSort tracker.
-        current_pan (int): Current pan position.
-        current_tilt (int): Current tilt position.
+    - frame (np.ndarray): Input frame.
+    - face_detection (mp.solutions.face_detection.FaceDetection): Face detection model.
+    - tracker (DeepSort): DeepSort tracker.
+    - current_pan (int): Current pan position.
+    - current_tilt (int): Current tilt position.
 
     Returns:
-        Tuple[np.ndarray, int, int]: Processed frame, updated pan position, updated tilt position.
+    - Tuple[np.ndarray, int, int]: Processed frame, updated pan position, updated tilt position.
     """
     frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
     results = face_detection.process(frame_rgb)
@@ -85,12 +85,13 @@ async def process_frame(frame: np.ndarray, face_detection: mp.solutions.face_det
                 cv2.putText(frame, distance_label, ((frame_center_x + cx) // 2, (frame_center_y + cy) // 2), 
                             cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 255), 2)
 
-                if abs(distance_x) > Config.X_THRESHOLD or abs(distance_y) > Config.Y_THRESHOLD:
-                    pan_step = -np.sign(distance_x) * Config.STEP_SIZE
-                    tilt_step = -np.sign(distance_y) * Config.STEP_SIZE
-                    current_pan = max(Config.PAN_MIN, min(Config.PAN_MAX, current_pan + pan_step))
-                    current_tilt = max(Config.TILT_MIN, min(Config.TILT_MAX, current_tilt + tilt_step))
-                    move_servo(current_pan, current_tilt)
+                # Servo movement code (commented out)
+                # if abs(distance_x) > Config.X_THRESHOLD or abs(distance_y) > Config.Y_THRESHOLD:
+                #     pan_step = -np.sign(distance_x) * Config.STEP_SIZE
+                #     tilt_step = -np.sign(distance_y) * Config.STEP_SIZE
+                #     current_pan = max(Config.PAN_MIN, min(Config.PAN_MAX, current_pan + pan_step))
+                #     current_tilt = max(Config.TILT_MIN, min(Config.TILT_MAX, current_tilt + tilt_step))
+                #     move_servo(current_pan, current_tilt)
 
                 first_confirmed = True
     else:
@@ -98,25 +99,33 @@ async def process_frame(frame: np.ndarray, face_detection: mp.solutions.face_det
 
     return frame, current_pan, current_tilt
 
-async def main():
-    current_pan = Config.PAN_START
-    current_tilt = Config.TILT_START
-    move_servo(current_pan, current_tilt)
+async def setup_and_process_video(video_source: int = 2) -> None:
+    """
+    Set up video capture, face detection, and tracking, then process video frames.
+
+    Args:
+    - video_source (int): Video source index (default is 2).
+    """
     face_detection = mp.solutions.face_detection.FaceDetection(min_detection_confidence=Config.MIN_DETECTION_CONFIDENCE)
     tracker = DeepSort(max_age=Config.MAX_AGE)
-    cap = cv2.VideoCapture(2)
+    cap = cv2.VideoCapture(video_source)
+    current_pan = Config.PAN_START
+    current_tilt = Config.TILT_START
 
-    while cap.isOpened():
-        success, frame = cap.read()
-        if not success:
-            continue
-        frame, current_pan, current_tilt = await process_frame(frame, face_detection, tracker, current_pan, current_tilt)
-        cv2.imshow('Face Tracking with Servo Control', frame)
-        if cv2.waitKey(5) & 0xFF == 27:
-            break
+    try:
+        while cap.isOpened():
+            success, frame = cap.read()
+            if not success:
+                print("Failed to read frame. Skipping...")
+                continue
 
-    cap.release()
-    cv2.destroyAllWindows()
-
-if __name__ == "__main__":
-    asyncio.run(main())
+            frame, current_pan, current_tilt = await process_frame(frame, face_detection, tracker, current_pan, current_tilt)
+            cv2.imshow('Face Tracking with Servo Control', frame)
+            
+            if cv2.waitKey(5) & 0xFF == 27:  # Exit on ESC key
+                break
+    except Exception as e:
+        print(f"An error occurred during video processing: {e}")
+    finally:
+        cap.release()
+        cv2.destroyAllWindows()
