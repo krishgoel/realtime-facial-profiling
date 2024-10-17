@@ -9,7 +9,7 @@ This project implements a real-time facial recognition system integrated with se
 ## Features
 
 - Real-time face detection and tracking
-- Servo-controlled camera movement
+- Servo-controlled camera movement (currently commented out)
 - Feature vector extraction for facial recognition
 - Pinecone integration for vector similarity search
 - MongoDB integration for user profiles
@@ -34,16 +34,23 @@ This project implements a real-time facial recognition system integrated with se
    ```
    python -m app
    ```
+   
+## Servo Control and Mapping
 
-## Future Improvements
+This project uses [Feetech STS3032 servos](https://evelta.com/sts3032-6v-4-5kg-360deg-serial-bus-servo-motor/) for camera pan and tilt control. Two servos are used - 
+1. Pan servo: Controls horizontal movement
+2. Tilt servo: Controls vertical movement
 
-### Planned Enhancements
-- Implement asynchronous streaming and processing for improved performance
-- Containerize the entire pipeline using Docker for easier deployment and scalability
+*Note: The servo-controlled camera movement functionality is currently commented out in the code. Users may implement this feature as desired.*
 
-### Potential Optimizations
-- Implement multi-vector storage for each individual to improve recognition accuracy
-- Develop an adaptive frame capture system to account for appearance variations over time
-- Implement periodic facial analysis updates (age, gender, race) with weighted averaging
-- Enhance error handling for cases where no face is detected
-- Improve matching accuracy by incorporating demographic analysis alongside facial vectors
+<figure>
+  <img src="./images/pan-mapping.png" alt="Pan Mapping">
+  <figcaption>Top-View of Azimuthal Angle to Pan Servo Position Mapping (Servo ID 2). Axis DH aligns with the +ve X-axis, where vector AH faces the speaker. The green arc indicates the permissible panning range of the servo (-47.5° to 97.5°).</figcaption>
+</figure>
+
+<figure>
+  <img src="./images/tilt-mapping.png" alt="Tilt Mapping">
+  <figcaption>Side-View of the Elevation Angle to Tilt Servo Position Mapping (Servo ID 1). Axis AB aligns with the +ve X-axis where vector AB points to the speaker. The green arc indicates the permissible tilting range of the servo (-10° to +50°).</figcaption>
+</figure>
+
+The servo mapping can be customized in the configuration file ([`config.py`](./app/config.py)) to adjust the range and sensitivity of camera movement. This allows for fine-tuning the system to specific hardware setups and use cases.
